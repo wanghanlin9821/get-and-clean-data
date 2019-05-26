@@ -1,5 +1,5 @@
 activity
-
+==================================================================
 1 WALKING
 
 2 WALKING_UPSTAIRS
@@ -15,6 +15,7 @@ activity
 functions
 ==================================================================
 mean: Mean value
+
 std: Standard deviation
 
 col names
