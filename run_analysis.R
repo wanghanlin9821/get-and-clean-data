@@ -1,39 +1,29 @@
-setwd("D:\\OneDrive\\Coursera\\get and clean data\\UCI HAR Dataset")
-X_train = read.table("train\\X_train.txt")
-X_test = read.table("test\\X_test.txt")
-y_train = read.table("train\\y_train.txt")
-y_test = read.table("test\\y_test.txt")
-Subject_train = read.table("train\\subject_train.txt")
-Subject_test = read.table("test\\subject_test.txt")
-activity_lables = read.table("activity_labels.txt")
+setwd("D:\\OneDrive - zju.edu.cn\\Coursera\\get and clean data\\UCI HAR Dataset")
 features = read.table("features.txt")
-#merge X,y and caculate 
+col_name = features[, 2]
+X_train = read.table("train\\X_train.txt",col.names = col_name)
+X_test = read.table("test\\X_test.txt", col.names = col_name)
+y_train = read.table("train\\y_train.txt", col.names = 'activity')
+y_test = read.table("test\\y_test.txt",col.names = 'activity')
+Subject_train = read.table("train\\subject_train.txt",col.names = 'subject')
+Subject_test = read.table("test\\subject_test.txt", col.names = 'subject')
+activity_lables = read.table("activity_labels.txt")
+#Merges the training and the test sets to create one data set
 X_all = rbind(X_train, X_test)
 y_all = rbind(y_train, y_test)
-colnames(X_all) = c(as.character(features[, 2]))
-Mean = grep(
-            "mean()", colnames(X_all), fixed = TRUE
-            )
-Std = grep(
-           "std()",  colnames(X_all),  fixed = TRUE
-           )
-Msd = X_all[, c(Mean, Std)]
-activity_all = cbind(y_all, Msd)
-activity_lables[, 2] = as.character(activity_lables[, 2])
-colnames(activity_all)[1] = "Activity"
-len = length(activity_all[, 1])
-for (i in 1:len) {
-    activity_all[i, 1] = activity_lables[activity_all[i, 1], 2]
-}
 Subject_all = rbind(Subject_train, Subject_test)
-all = cbind(Subject_all, activity_all)
-colnames(all)[1] = "Subject"
-tidy = aggregate(
-                 all[, 3] ~ Subject + Activity,  data = all,  FUN = "mean"
-                 )
-col = ncol(all)
-for (i in 4:col) {
-    tidy[, i] = aggregate(all[, i] ~ Subject + Activity, data = all, FUN = "mean")[, 3]
-}
-colnames(tidy)[3:ncol(tidy)] = colnames(Msd)
-write.table(tidy, row.name = FALSE,file = "final.txt")
+# merge dataframe
+df = cbind(Subject_all, y_all, X_all)
+# head(df)
+# find mean and std
+col_mean = grep(
+            "mean", colnames(df), fixed = TRUE,value = TRUE
+            )
+col_std = grep(
+           "std", colnames(df), fixed = TRUE, value = TRUE
+           )
+cols = c('subject', 'activity', col_mean, col_std)
+df_new = df[, cols]
+#head(df_new)
+final = df_new %>% group_by(subject, activity) %>% summarise_all(funs(mean))
+write.table(final, "final.txt", row.name = FALSE)
