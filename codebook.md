@@ -1,4 +1,4 @@
-#activity
+activity
 
 1 WALKING
 
@@ -11,10 +11,12 @@
 5 STANDING
 
 6 LAYING
+
 functions
 ==================================================================
 mean: Mean value
 std: Standard deviation
+
 col names
 ==================================================================
 "x"
